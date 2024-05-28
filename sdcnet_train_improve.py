@@ -135,7 +135,7 @@ def run(params):
         diags_edges.append([idx, idx])
         diags_indexs.append( all_indexs.index([idx, idx]) )
 
-    num_folds = 5
+    num_folds = 1
     all_stats = np.zeros((num_folds, 6))
     merged_stats = np.zeros((num_folds, 6))
 
