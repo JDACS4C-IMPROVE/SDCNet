@@ -1,0 +1,9 @@
+[Global_Params]
+model_name = "sdcnet"
+
+[Preprocess]
+
+[Train]
+epochs = 10000
+
+[Infer]
