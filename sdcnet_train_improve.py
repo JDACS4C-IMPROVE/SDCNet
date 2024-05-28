@@ -103,7 +103,7 @@ def run(params):
     # ------------------------------------------------------
     # Load data
     # ------------------------------------------------------
-    data = pd.read_csv('../data/oneil_dataset_loewe.txt', sep='\t', header=0)
+    data = pd.read_csv('./data/oneil_dataset_loewe.txt', sep='\t', header=0)
     data.columns = ['drugname1','drugname2','cell_line','synergy']
     # data.columns = ['drugname1','drugname2','cell_line', 'zip', 'bliss', 'loewe', 'hsa']
 
@@ -112,7 +112,7 @@ def run(params):
     cellslist = sorted(list(set(data['cell_line']))) 
     cellscount = len(cellslist)
 
-    features = pd.read_csv('../data/oneil_drug_informax_feat.txt',sep='\t', header=None)
+    features = pd.read_csv('./data/oneil_drug_informax_feat.txt',sep='\t', header=None)
 
     drug_feat = sp.csr_matrix( np.array(features) )
     drug_feat = sparse_to_tuple(drug_feat.tocoo())
