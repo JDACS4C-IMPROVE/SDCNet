@@ -156,17 +156,7 @@ def run(params):
             saver.save(sess, best_model_file)
 
 
-    ###### this should all go to infer
-    saver.restore(sess, best_model_file )
-
-    feed_dict = dict()
-    feed_dict.update({placeholders['features']: drug_feat})
-    feed_dict.update({placeholders['dropout']: params["dropout"]})
-    feed_dict.update({placeholders['net1_adj_norm_'+str(cellidx)] : d_net1_norm[cellidx] for cellidx in range(cellscount)})
-
-    ##test predict
-    feed_dict.update({placeholders['dropout']: 0})
-    res = sess.run( model.reconstructions , feed_dict=feed_dict)
+    
 
     # improve metrics
     y_pred = []
