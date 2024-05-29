@@ -406,7 +406,18 @@ def run(params):
         test_cell_stats.loc['std'] = test_std
         test_cell_stats.to_csv(resultspath+ '/cell_stats_'+str(foldidx)+'.txt',sep='\t',header=None,index=True)
 
-        
+        ##get merged stats
+        merged_preds_binary = [ 1 if x >=0.5 else 0 for x in merged_preds ]
+        merged_auc = roc_auc_score(merged_labels, merged_preds)
+        precision, recall, _ = precision_recall_curve(merged_labels,merged_preds)
+        merged_auprc = auc(recall, precision)
+        merged_acc = accuracy_score(merged_preds_binary, merged_labels)
+        merged_f1 = f1_score(merged_labels, merged_preds_binary)
+        merged_precision = precision_score(merged_labels,merged_preds_binary, zero_division=0)
+        merged_recall = recall_score(merged_labels, merged_preds_binary)
+        merged_stats[foldidx] = [ merged_auc, merged_auprc, merged_acc, merged_f1, merged_precision, merged_recall ]
+        pd.DataFrame([ merged_auc, merged_auprc, merged_acc, merged_f1, merged_precision, merged_recall ]).to_csv(resultspath + '/stats_'+str(foldidx)+'.txt',sep='\t',header=None, index=None)
+
 
     # -----------------------------
     # Train. Iterate over epochs.
