@@ -16,6 +16,7 @@ from improve import drug_resp_pred as drp
 # Model-specific imports
 import pickle
 import scipy.sparse as sp
+import sdcnet_utils
 
 filepath = Path(__file__).resolve().parent # [Req]
 
