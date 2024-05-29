@@ -251,7 +251,7 @@ def run(params):
     print(eval("d_pos_weights"))
     frm.create_outdir(outdir=params["ml_data_outdir"])
     def save_file(file):
-        path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
+        #path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
         with open('%s.pickle'%file, 'wb+') as f:
             pickle.dump(file, f, protocol=4)
 
