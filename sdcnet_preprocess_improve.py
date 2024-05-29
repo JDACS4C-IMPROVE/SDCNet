@@ -241,6 +241,24 @@ def run(params: Dict):
 
     # save and restore files here 
     frm.create_outdir(outdir=params["ml_data_outdir"])
+
+
+    # ------------------------------------------------------
+    # Load Y data 
+    # ------------------------------------------------------
+
+    # ------------------------------------------------------
+    # Construct ML data for every stage (train, val, test)
+    # ------------------------------------------------------
+
+    # ------------------------------------------------------
+    # [Req] Create data names for ML data
+    # ------------------------------------------------------
+
+
+    # ------------------------------------------------------
+    # Save ML data
+    # ------------------------------------------------------
     def save_file(file, file_name):
         path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
         with open(path_name, 'wb+') as f:
@@ -256,37 +274,6 @@ def run(params: Dict):
     save_file(d_train_labels, "d_train_labels")
     save_file(d_valid_edges, "d_valid_edges")
     save_file(d_valid_labels, "d_valid_labels")
-
-    # ------------------------------------------------------
-    # Load Y data 
-    # ------------------------------------------------------
-
-    # ------------------------------------------------------
-    # Construct ML data for every stage (train, val, test)
-    # ------------------------------------------------------
-
-    # ------------------------------------------------------
-    # [Req] Create data names for ML data
-    # ------------------------------------------------------
-    train_data_fname = frm.build_ml_data_name(params, stage="train")  # [Req]
-    val_data_fname = frm.build_ml_data_name(params, stage="val")  # [Req]
-    test_data_fname = frm.build_ml_data_name(params, stage="test")  # [Req]
-
-    train_data_path = params["ml_data_outdir"] + "/" + train_data_fname
-    val_data_path = params["ml_data_outdir"] + "/" + val_data_fname
-    test_data_path = params["ml_data_outdir"] + "/" + test_data_fname
-
-    # ------------------------------------------------------
-    # Save ML data
-    # ------------------------------------------------------
-    with open(train_data_path, 'wb+') as f:
-        pickle.dump(train_data, f, protocol=4)
-
-    with open(val_data_path, 'wb+') as f:
-        pickle.dump(val_data, f, protocol=4)
-    
-    with open(test_data_path, 'wb+') as f:
-        pickle.dump(test_data, f, protocol=4)
    
 
     return params["ml_data_outdir"]
