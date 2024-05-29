@@ -42,7 +42,7 @@ train_params = app_train_params + model_train_params
 # [Req] List of metrics names to compute prediction performance scores
 # metrics_list = ["mse", "rmse", "pcc", "scc", "r2"] 
 # or
-metrics_list = ["acc", "recall", "precision", "f1"]
+metrics_list = ["mse", "acc", "recall", "precision", "f1"]
 
 # ------------------------------------------------------
 # Util functions
