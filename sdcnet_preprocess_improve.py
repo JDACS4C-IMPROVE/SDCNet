@@ -94,6 +94,7 @@ def run(params: Dict):
     num_drug_feat = drug_feat[2][1]
     num_drug_nonzeros = drug_feat[1].shape[0]
 
+
     resultspath = params["model_outdir"]
 
     all_indexs = []
@@ -276,6 +277,9 @@ def run(params: Dict):
     save_file(d_valid_edges, "d_valid_edges")
     save_file(d_valid_labels, "d_valid_labels")
    
+    counts_needed_path = params["ml_data_outdir"] + "/counts_needed.pkl"
+    with open(counts_needed_path, 'wb+') as f:
+            pickle.dump([cellscount, num_drug_feat, num_drug_nonzeros], f, protocol=1)
 
     return params["ml_data_outdir"]
 

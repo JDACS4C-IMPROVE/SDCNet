@@ -101,8 +101,9 @@ def run(params):
     d_valid_edges = open_file("d_valid_edges")
     d_valid_labels = open_file("d_valid_labels")
 
-    cellscount = len(d_pos_weights)
-    print("cellscount: ", cellscount)
+    counts_needed_path = params["ml_data_outdir"] + "/counts_needed.pkl"
+    with open(counts_needed_path, 'rb') as f:
+            cellscount, num_drug_feat, num_drug_nonzeros = pickle.load(f)
 
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
