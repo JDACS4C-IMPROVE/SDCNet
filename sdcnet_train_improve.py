@@ -245,7 +245,13 @@ def run(params):
         d_valid_labels[cellidx] = y_valid
 
         # save and restore files here
+    def save_file(file_name):
+        path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
+        with open(path_name, 'wb+') as f:
+            pickle.dump(eval(file_name), f, protocol=4)
 
+    save_file(d_pos_weights)
+            
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
         'dropout': tf.placeholder_with_default(0., shape=()),
