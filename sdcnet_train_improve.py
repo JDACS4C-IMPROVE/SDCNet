@@ -100,6 +100,7 @@ def run(params):
     d_train_labels = open_file("d_train_labels")
     d_valid_edges = open_file("d_valid_edges")
     d_valid_labels = open_file("d_valid_labels")
+    drug_feat = open_file("drug_feat")
 
     counts_needed_path = params["ml_data_outdir"] + "/counts_needed.pkl"
     with open(counts_needed_path, 'rb') as f:

@@ -276,6 +276,7 @@ def run(params: Dict):
     save_file(d_train_labels, "d_train_labels")
     save_file(d_valid_edges, "d_valid_edges")
     save_file(d_valid_labels, "d_valid_labels")
+    save_file(drug_feat, "drug_feat")
    
     counts_needed_path = params["ml_data_outdir"] + "/counts_needed.pkl"
     with open(counts_needed_path, 'wb+') as f:
