@@ -85,7 +85,7 @@ def run(params: Dict):
     drugscount = len(drugslist)
     cellslist = sorted(list(set(data['cell_line']))) 
     cellscount = len(cellslist)
-    params["cellscount"] = cellscount
+    print("cellscount: ", cellscount)
 
     features = pd.read_csv('./data/oneil_drug_informax_feat.txt',sep='\t', header=None)
 
