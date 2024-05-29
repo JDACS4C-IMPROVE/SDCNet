@@ -23,6 +23,7 @@ import tensorflow.compat.v1 as tf
 tf.compat.v1.disable_eager_execution()
 tf.compat.v1.disable_v2_behavior() 
 import sdcnet_utils
+import pickle
 
 # [Req] Imports from preprocess script
 from sdcnet_preprocess_improve import preprocess_params
