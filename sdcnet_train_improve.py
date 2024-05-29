@@ -250,13 +250,12 @@ def run(params):
     print(d_pos_weights)
     print(eval("d_pos_weights"))
     frm.create_outdir(outdir=params["ml_data_outdir"])
-    def save_file(file_name):
+    def save_file(file):
         path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
-        file = eval(file_name)
-        with open(path_name, 'wb+') as f:
+        with open('%s.pickle'%file, 'wb+') as f:
             pickle.dump(file, f, protocol=4)
 
-    save_file("d_pos_weights")
+    save_file(d_pos_weights)
 
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
