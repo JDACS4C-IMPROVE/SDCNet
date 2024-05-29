@@ -14,6 +14,7 @@ from improve import framework as frm
 from improve import drug_resp_pred as drp
 
 # Model-specific imports
+import pickle
 
 filepath = Path(__file__).resolve().parent # [Req]
 
@@ -68,7 +69,7 @@ def run(params: Dict):
     # ------------------------------------------------------
     # [Req] Build paths and create output dir
     # ------------------------------------------------------
-    params = frm.build_paths(params)  
+    #params = frm.build_paths(params)  
 
     frm.create_outdir(outdir=params["ml_data_outdir"])
 
