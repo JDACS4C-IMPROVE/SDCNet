@@ -366,7 +366,8 @@ def run(params):
         cells_stats = np.zeros((cellscount, 6))
 
         # improve metrics
-        y_pred = res[ tuple( d_test_edges[cellidx].T )].tolist()
+        print(type(res))
+        y_pred = res[][ tuple( d_test_edges[cellidx].T )].tolist()
         y_labels = d_test_labels
 
         scores = frm.compute_performace_scores(params, y_true=y_labels, y_pred=y_pred, stage="val", outdir=params["model_outdir"], metrics=metrics_list)
