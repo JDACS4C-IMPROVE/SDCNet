@@ -59,7 +59,7 @@ def run(params):
 
     # Build model path
     modelpath = frm.build_model_path(params, model_dir=params["model_outdir"])
-
+    resultspath = params["model_outdir"]
     # ------------------------------------------------------
     # [Req] Create data names for train and val sets
     # ------------------------------------------------------
