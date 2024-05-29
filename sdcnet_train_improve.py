@@ -101,6 +101,7 @@ def run(params):
     d_valid_edges = open_file("d_valid_edges")
     d_valid_labels = open_file("d_valid_labels")
 
+    cellscount = params["cellscount"]
 
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
