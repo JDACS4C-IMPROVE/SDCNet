@@ -368,7 +368,8 @@ def run(params):
         # improve metrics
         print(type(res))
         for cellidx in range(cellscount):
-            y_pred = res[cellidx][ tuple( d_test_edges[cellidx].T )].tolist()
+            preds_all_improve = res[cellidx][ tuple( d_test_edges[cellidx].T )].tolist()
+            y_pred = [ 1 if x>=0.5 else 0 for x in preds_all_improve ]
             y_labels = d_test_labels[cellidx]
 
         scores = frm.compute_performace_scores(params, y_true=y_labels, y_pred=y_pred, stage="val", outdir=params["model_outdir"], metrics=metrics_list)
