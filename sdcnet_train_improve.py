@@ -364,6 +364,14 @@ def run(params):
         merged_preds = []
         merged_labels = []
         cells_stats = np.zeros((cellscount, 6))
+
+        # improve metrics
+        y_pred = res[][ tuple( d_test_edges[cellidx].T )].tolist()
+        y_labels = d_test_labels[]
+
+        scores = frm.compute_performace_scores(params, y_true=y_labels, y_pred=y_pred, stage="val", outdir=params["model_outdir"], metrics=metrics_list)
+
+
         for cellidx in range(cellscount):
             cellname = cellslist[cellidx]
             preds_all = res[cellidx][ tuple( d_test_edges[cellidx].T )].tolist()
@@ -395,18 +403,7 @@ def run(params):
         test_cell_stats.loc['std'] = test_std
         test_cell_stats.to_csv(resultspath+ '/cell_stats_'+str(foldidx)+'.txt',sep='\t',header=None,index=True)
 
-        ##get merged stats
-        merged_preds_binary = [ 1 if x >=0.5 else 0 for x in merged_preds ]
-        merged_auc = roc_auc_score(merged_labels, merged_preds)
-        precision, recall, _ = precision_recall_curve(merged_labels,merged_preds)
-        merged_auprc = auc(recall, precision)
-        merged_acc = accuracy_score(merged_preds_binary, merged_labels)
-        merged_f1 = f1_score(merged_labels, merged_preds_binary)
-        merged_precision = precision_score(merged_labels,merged_preds_binary, zero_division=0)
-        merged_recall = recall_score(merged_labels, merged_preds_binary)
-        merged_stats[foldidx] = [ merged_auc, merged_auprc, merged_acc, merged_f1, merged_precision, merged_recall ]
-        pd.DataFrame([ merged_auc, merged_auprc, merged_acc, merged_f1, merged_precision, merged_recall ]).to_csv(resultspath + '/stats_'+str(foldidx)+'.txt',sep='\t',header=None, index=None)
-
+        
 
     # -----------------------------
     # Train. Iterate over epochs.
@@ -420,7 +417,7 @@ def run(params):
     # Load best model and compute predictions
     # ------------------------------------------------------
     print('cv is over!')
-    ##all stats
+    ##all stats - this is from the cell list
     all_stats = pd.DataFrame(all_stats)
     stats_mean = all_stats.mean(axis=0)
     stats_std = all_stats.std(axis=0)
