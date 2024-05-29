@@ -22,6 +22,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score, precision_re
 import tensorflow.compat.v1 as tf
 tf.compat.v1.disable_eager_execution()
 tf.compat.v1.disable_v2_behavior() 
+import sdcnet_utils
 
 # [Req] Imports from preprocess script
 from sdcnet_preprocess_improve import preprocess_params
@@ -44,27 +45,6 @@ train_params = app_train_params + model_train_params
 # or
 metrics_list = ["mse", "acc", "recall", "precision", "f1"]
 
-# ------------------------------------------------------
-# Util functions
-# ------------------------------------------------------
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-def sparse_to_tuple(sparse_mx):
-    if not sp.isspmatrix_coo(sparse_mx):
-        sparse_mx = sparse_mx.tocoo()
-    coords = np.vstack((sparse_mx.row, sparse_mx.col)).transpose()
-    values = sparse_mx.data
-    shape = sparse_mx.shape
-    return coords, values, shape
-
-def preprocess_graph(adj):
-    adj = sp.coo_matrix(adj)
-    adj_ = adj + sp.eye(adj.shape[0])
-    rowsum = np.array(adj_.sum(1))
-    degree_mat_inv_sqrt = sp.diags(np.power(rowsum, -0.5).flatten())
-    adj_normalized = adj_.dot(degree_mat_inv_sqrt).transpose().dot(degree_mat_inv_sqrt).tocoo()
-    return sparse_to_tuple(adj_normalized)
 
 # [Req]
 def run(params):
@@ -114,7 +94,7 @@ def run(params):
     features = pd.read_csv('./data/oneil_drug_informax_feat.txt',sep='\t', header=None)
 
     drug_feat = sp.csr_matrix( np.array(features) )
-    drug_feat = sparse_to_tuple(drug_feat.tocoo())
+    drug_feat = sdcnet_utils.sparse_to_tuple(drug_feat.tocoo())
     num_drug_feat = drug_feat[2][1]
     num_drug_nonzeros = drug_feat[1].shape[0]
 
@@ -199,8 +179,8 @@ def run(params):
         adj_net1 = sp.csr_matrix(adj_net1_mat)
         adj_net2 = sp.csr_matrix(adj_net2_mat)
 
-        net1_edges = sparse_to_tuple(sp.triu(adj_net1))[0]
-        net2_edges = sparse_to_tuple(sp.triu(adj_net2))[0]
+        net1_edges = sdcnet_utils.sparse_to_tuple(sp.triu(adj_net1))[0]
+        net2_edges = sdcnet_utils.sparse_to_tuple(sp.triu(adj_net2))[0]
 
         #split the train and test edges
         num_test = int(np.floor(net1_edges.shape[0] * params["val_test_size"]))
@@ -216,9 +196,9 @@ def run(params):
         net1_train_data = np.ones(net1_train_edges.shape[0])
         net1_adj_train = sp.csr_matrix( (net1_train_data, (net1_train_edges[:, 0], net1_train_edges[:, 1])), shape= adj_net1.shape )
         net1_adj_train = net1_adj_train + net1_adj_train.T
-        net1_adj_norm = preprocess_graph(net1_adj_train)
+        net1_adj_norm = sdcnet_utils.preprocess_graph(net1_adj_train)
         net1_adj_orig = net1_adj_train.copy() #this the label
-        net1_adj_orig = sparse_to_tuple(sp.csr_matrix(net1_adj_orig))
+        net1_adj_orig = sdcnet_utils.sparse_to_tuple(sp.csr_matrix(net1_adj_orig))
 
         ##net2
         ##net2
@@ -263,6 +243,8 @@ def run(params):
         d_train_labels[cellidx] = y_train
         d_valid_edges[cellidx] = valid_edges
         d_valid_labels[cellidx] = y_valid
+
+        # save and restore files here
 
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
@@ -313,6 +295,8 @@ def run(params):
             best_acc = merged_acc
             saver.save(sess, best_model_file)
 
+
+    ###### this should all go to infer
     saver.restore(sess, best_model_file )
 
     feed_dict = dict()
