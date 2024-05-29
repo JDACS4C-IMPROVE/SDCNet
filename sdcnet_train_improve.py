@@ -246,7 +246,9 @@ def run(params):
         d_valid_labels[cellidx] = y_valid
 
     # save and restore files here 
-
+    print(type(d_pos_weights))
+    print(d_pos_weights)
+    print(eval("d_pos_weights"))
     frm.create_outdir(outdir=params["ml_data_outdir"])
     def save_file(file_name):
         path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
