@@ -246,9 +246,6 @@ def run(params):
         d_valid_labels[cellidx] = y_valid
 
     # save and restore files here 
-    print(type(d_pos_weights))
-    print(d_pos_weights)
-    print(eval("d_pos_weights"))
     frm.create_outdir(outdir=params["ml_data_outdir"])
     def save_file(file, file_name):
         path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
@@ -256,6 +253,33 @@ def run(params):
             pickle.dump(file, f, protocol=4)
 
     save_file(d_pos_weights, "d_pos_weights")
+    save_file(d_net1_norm, "d_net1_norm")
+    save_file(d_net1_orig, "d_net1_orig")
+    save_file(d_test_edges, "d_test_edges")
+    save_file(d_test_labels, "d_test_labels")
+    save_file(d_train_edges, "d_train_edges")
+    save_file(d_train_indexs, "d_train_indexs")
+    save_file(d_train_labels, "d_train_labels")
+    save_file(d_valid_edges, "d_valid_edges")
+    save_file(d_valid_labels, "d_valid_labels")
+
+    def open_file(file_name):
+        path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
+        with open(path_name, 'rb') as f:
+            file = pickle.load(f)
+        return file
+    
+    d_pos_weights = open_file("d_pos_weights")
+    d_net1_norm = open_file("d_net1_norm")
+    d_net1_orig = open_file("d_net1_orig")
+    d_test_edges = open_file("d_test_edges")
+    d_test_labels = open_file("d_test_labels")
+    d_train_edges = open_file("d_train_edges")
+    d_train_indexs = open_file("d_train_indexs")
+    d_train_labels = open_file("d_train_labels")
+    d_valid_edges = open_file("d_valid_edges")
+    d_valid_labels = open_file("d_valid_labels")
+
 
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
