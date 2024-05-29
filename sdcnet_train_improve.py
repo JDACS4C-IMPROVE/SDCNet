@@ -105,7 +105,6 @@ def run(params):
     # ------------------------------------------------------
     data = pd.read_csv('./data/oneil_dataset_loewe.txt', sep='\t', header=0)
     data.columns = ['drugname1','drugname2','cell_line','synergy']
-    # data.columns = ['drugname1','drugname2','cell_line', 'zip', 'bliss', 'loewe', 'hsa']
 
     drugslist = sorted(list(set(list(data['drugname1']) + list(data['drugname2'])))) #38
     drugscount = len(drugslist)
@@ -161,16 +160,12 @@ def run(params):
         d_valid_edges = {}
         d_valid_labels = {}
         for cellidx in range(cellscount):
-            # cellidx = 0
             cellname = cellslist[cellidx]
             print('processing ', cellname)
             each_data = data[data['cell_line']==cellname]
             net1_data = each_data[each_data['synergy'] >= 10]
             net2_data = each_data[each_data['synergy'] < 0] 
             net3_data = each_data[(each_data['synergy'] >= 0) & (each_data['synergy'] < 10)]
-            # if net2_data.shape[0] < 10: 
-            #     num_need = 10 - net2_data.shape[0]
-            #     net2_data = pd.concat([net2_data, net3_data[:num_need]])
             print(net1_data.shape, net2_data.shape, net3_data.shape)
             d_net1 = {}
             for each in net1_data.values:
@@ -243,10 +238,8 @@ def run(params):
                 net2_test_edge_idx = net2_edge_idx[(foldidx - 1) * num_test2: ]
             else:
                 net2_test_edge_idx = net2_edge_idx[(foldidx -1 )* num_test2: foldidx *num_test2]
+
             net2_valid_edge_idx = net2_edge_idx[foldidx * num_test2: (foldidx+1)*num_test2]
-            # net2_valid_test_edge_idx = np.random.choice(net2_edge_idx, num_test * 2)
-            # net2_test_edge_idx = net2_valid_test_edge_idx[:num_test]
-            # net2_valid_edge_idx = net2_valid_test_edge_idx[num_test:]
             net2_test_edges = net2_edges[ net2_test_edge_idx ]
             net2_valid_edges = net2_edges[ net2_valid_edge_idx ]
             net2_train_edge_idx = [ x for x in net2_edge_idx if x not in net2_test_edge_idx + net2_valid_edge_idx ]
@@ -256,9 +249,7 @@ def run(params):
             net2_train_edges_symmetry = np.array([  [x[1],x[0]] for x in net2_train_edges ])
             net1_train_edges = np.concatenate([net1_train_edges, net1_train_edges_symmetry])
             net2_train_edges = np.concatenate([net2_train_edges, net2_train_edges_symmetry])
-            # net1_train_index = [ all_indexs.index(x) for x in np.concatenate([net1_train_edges, net1_train_edges_symmetry]).tolist() ]
-            # net2_train_index = [ all_indexs.index(x) for x in np.concatenate([ net2_train_edges, net2_train_edges_symmetry]).tolist()]
-            # train_indexs = [net1_train_index, net2_train_index ]
+
             test_edges = np.concatenate([net1_test_edges, net2_test_edges])
             y_test = [1] * net1_test_edges.shape[0] + [0] * net2_test_edges.shape[0]
             valid_edges = np.concatenate([net1_valid_edges, net2_valid_edges])
@@ -267,7 +258,7 @@ def run(params):
             y_train = [1] * net1_train_edges.shape[0] + [0] * net2_train_edges.shape[0]
             train_indexs = [ all_indexs.index(x) for x in train_edges.tolist() ]
             each_pos_weight = len(net2_train_edges) / len(net1_train_edges)
-            # each_pos_weight =  len(net1_train_edges) / len(net2_train_edges)
+
             d_pos_weights[cellidx] = each_pos_weight
             d_net1_norm[cellidx] = net1_adj_norm
             d_net1_orig[cellidx] = net1_adj_orig
@@ -300,6 +291,9 @@ def run(params):
 
         best_model_file = resultspath + '/best_model_' + str(foldidx) +'.ckpt'
         best_acc = 0
+        # -----------------------------
+        # Train. Iterate over epochs.
+        # -----------------------------
         for epoch in range(params["epochs"]):
             # epoch =  0
             feed_dict = dict()
@@ -314,40 +308,15 @@ def run(params):
 
             merged_preds = []
             merged_labels = []
-            # cells_stats = np.zeros((cellscount, 6))
             for cellidx in range(cellscount):
-                # cellidx = 0
                 preds_all = res[cellidx][ tuple( d_valid_edges[cellidx].T )].tolist()
-                # preds_all = [sigmoid(x) for x in preds_all]
-                preds_all_binary = [ 1 if x>=0.5 else 0 for x in preds_all ]
                 labels_all = d_valid_labels[cellidx]
                 merged_preds += preds_all
                 merged_labels += labels_all
-            #     #cal
-            #     roc_score = roc_auc_score(labels_all, preds_all)
-            #     precision, recall, _ = precision_recall_curve(labels_all, preds_all_binary)
-            #     auprc_score = auc(recall, precision)
-            #     accuracy = accuracy_score(preds_all_binary, labels_all)
-            #     f1 = f1_score(labels_all, preds_all_binary)
-            #     precision = precision_score(labels_all, preds_all_binary, zero_division=0)
-            #     recall = recall_score(labels_all, preds_all_binary)
-            #     cells_stats[cellidx] = [ roc_score, accuracy, auprc_score, f1, precision, recall ]
-            
-            # ave_auc, ave_auprc, ave_acc, ave_f1, ave_precision, ave_recall = cells_stats.mean(axis=0)
-
             merged_preds_binary = [1 if x >= 0.5 else 0 for x in merged_preds ]
-            merged_auc = roc_auc_score(merged_labels, merged_preds)
-            precision, recall, _ = precision_recall_curve(merged_labels,merged_preds_binary)
-            merged_auprc = auc(recall, precision)
             merged_acc = accuracy_score(merged_preds_binary, merged_labels)
-            merged_f1 = f1_score(merged_labels, merged_preds_binary)
-            merged_precision = precision_score(merged_labels,merged_preds_binary, zero_division=0)
-            merged_recall = recall_score(merged_labels, merged_preds_binary)
-
             if best_acc < merged_acc:
                 best_acc = merged_acc
-            # if best_acc < ave_avcc:
-            #     best_acc = ave_acc
                 saver.save(sess, best_model_file)
 
         saver.restore(sess, best_model_file )
@@ -360,10 +329,6 @@ def run(params):
         ##test predict
         feed_dict.update({placeholders['dropout']: 0})
         res = sess.run( model.reconstructions , feed_dict=feed_dict)
-
-        merged_preds = []
-        merged_labels = []
-        cells_stats = np.zeros((cellscount, 6))
 
         # improve metrics
         print(type(res))
@@ -379,53 +344,7 @@ def run(params):
         scores = frm.compute_performace_scores(params, y_true=y_labels, y_pred=y_pred, stage="val", outdir=params["model_outdir"], metrics=metrics_list)
 
 
-        for cellidx in range(cellscount):
-            cellname = cellslist[cellidx]
-            preds_all = res[cellidx][ tuple( d_test_edges[cellidx].T )].tolist()
-            # preds_all = [sigmoid(x) for x in preds_all]
-            preds_all_binary = [ 1 if x>=0.5 else 0 for x in preds_all ]
-            labels_all = d_test_labels[cellidx]
-            merged_preds += preds_all
-            merged_labels += labels_all
 
-            roc_score = roc_auc_score(labels_all, preds_all)
-            precision, recall, _ = precision_recall_curve(labels_all, preds_all)
-            auprc_score = auc(recall, precision)
-            accuracy = accuracy_score(preds_all_binary, labels_all)
-            f1 = f1_score(labels_all, preds_all_binary)
-            precision = precision_score(labels_all, preds_all_binary, zero_division=0)
-            recall = recall_score(labels_all, preds_all_binary)
-            t = [ roc_score, accuracy, auprc_score, f1, precision, recall ]
-            cells_stats[cellidx] = t
-
-        ave_auc, ave_auprc, ave_acc, ave_f1, ave_precision, ave_recall = cells_stats.mean(axis=0)
-
-        test_mean = cells_stats.mean(axis=0)
-        all_stats[foldidx] = test_mean
-
-        test_cell_stats = pd.DataFrame(cells_stats)
-        test_cell_stats.index = cellslist
-        test_std = test_cell_stats.std(axis=0)
-        test_cell_stats.loc['mean'] = test_mean
-        test_cell_stats.loc['std'] = test_std
-        test_cell_stats.to_csv(resultspath+ '/cell_stats_'+str(foldidx)+'.txt',sep='\t',header=None,index=True)
-
-        ##get merged stats
-        merged_preds_binary = [ 1 if x >=0.5 else 0 for x in merged_preds ]
-        merged_auc = roc_auc_score(merged_labels, merged_preds)
-        precision, recall, _ = precision_recall_curve(merged_labels,merged_preds)
-        merged_auprc = auc(recall, precision)
-        merged_acc = accuracy_score(merged_preds_binary, merged_labels)
-        merged_f1 = f1_score(merged_labels, merged_preds_binary)
-        merged_precision = precision_score(merged_labels,merged_preds_binary, zero_division=0)
-        merged_recall = recall_score(merged_labels, merged_preds_binary)
-        merged_stats[foldidx] = [ merged_auc, merged_auprc, merged_acc, merged_f1, merged_precision, merged_recall ]
-        pd.DataFrame([ merged_auc, merged_auprc, merged_acc, merged_f1, merged_precision, merged_recall ]).to_csv(resultspath + '/stats_'+str(foldidx)+'.txt',sep='\t',header=None, index=None)
-
-
-    # -----------------------------
-    # Train. Iterate over epochs.
-    # -----------------------------
 
     # -----------------------------
     # Save model
@@ -434,22 +353,7 @@ def run(params):
     # ------------------------------------------------------
     # Load best model and compute predictions
     # ------------------------------------------------------
-    print('cv is over!')
-    ##all stats - this is from the cell list
-    all_stats = pd.DataFrame(all_stats)
-    stats_mean = all_stats.mean(axis=0)
-    stats_std = all_stats.std(axis=0)
-    all_stats.loc['mean'] = stats_mean
-    all_stats.loc['std'] = stats_std
-    all_stats.to_csv(resultspath+'/all_stats.txt', sep='\t', header=None, index=True)
 
-    ##all stats
-    merged_stats = pd.DataFrame(merged_stats)
-    stats_mean = merged_stats.mean(axis=0)
-    stats_std = merged_stats.std(axis=0)
-    merged_stats.loc['mean'] = stats_mean
-    merged_stats.loc['std'] = stats_std
-    merged_stats.to_csv(resultspath+'/merged_stats.txt', sep='\t', header=None, index=True)
 
     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
