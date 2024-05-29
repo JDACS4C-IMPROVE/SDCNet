@@ -244,8 +244,7 @@ def run(params):
         d_valid_edges[cellidx] = valid_edges
         d_valid_labels[cellidx] = y_valid
 
-    # save and restore files here
-    params = frm.build_paths(params)  
+    # save and restore files here 
 
     frm.create_outdir(outdir=params["ml_data_outdir"])
     def save_file(file_name):
