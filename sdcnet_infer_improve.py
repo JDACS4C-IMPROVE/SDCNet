@@ -81,6 +81,10 @@ def run(params):
     config.allow_soft_placement = True
     config.log_device_placement = True
     config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    # Create model
+    from models.model_mult import sdcnet
+    model = sdcnet(placeholders, num_drug_feat, params["embedding_dim"], num_drug_nonzeros, name='sdcnet', use_cellweights=True, use_layerweights=True,  fncellscount =cellscount )
+   
     # Initialize session
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
@@ -104,10 +108,7 @@ def run(params):
     feed_dict.update({placeholders['features']: drug_feat})
     feed_dict.update({placeholders['dropout']: params["dropout"]})
     feed_dict.update({placeholders['net1_adj_norm_'+str(cellidx)] : d_net1_norm[cellidx] for cellidx in range(cellscount)})
-    # Create model
-    from models.model_mult import sdcnet
-    model = sdcnet(placeholders, num_drug_feat, params["embedding_dim"], num_drug_nonzeros, name='sdcnet', use_cellweights=True, use_layerweights=True,  fncellscount =cellscount )
-   
+    
     ##test predict
     feed_dict.update({placeholders['dropout']: 0})
     res = sess.run( model.reconstructions , feed_dict=feed_dict)
