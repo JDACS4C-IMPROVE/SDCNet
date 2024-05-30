@@ -75,15 +75,15 @@ def run(params):
     with open(counts_needed_path, 'rb') as f:
             cellscount, num_drug_feat, num_drug_nonzeros = pickle.load(f)
 
-    #config = tf.compat.v1.ConfigProto()
-    #config.gpu_options.allow_growth = True
-    #sess = tf.compat.v1.Session(config=config)
-    #config.allow_soft_placement = True
-    #config.log_device_placement = True
-    #config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.compat.v1.Session(config=config)
+    config.allow_soft_placement = True
+    config.log_device_placement = True
+    config.gpu_options.per_process_gpu_memory_fraction = 0.3
     # Initialize session
     sess = tf.Session()
-    #sess.run(tf.global_variables_initializer())
+    sess.run(tf.global_variables_initializer())
     #saver = tf.train.Saver(max_to_keep=1)
     best_model_file = resultspath + '/best_model.ckpt'
     best_model_meta = resultspath + '/best_model.ckpt.meta'
