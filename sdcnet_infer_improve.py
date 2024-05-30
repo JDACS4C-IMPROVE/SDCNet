@@ -21,6 +21,7 @@ tf.compat.v1.disable_eager_execution()
 tf.compat.v1.disable_v2_behavior() 
 import sdcnet_utils
 import pickle
+from models.model_mult import sdcnet
 
 # [Req] Imports from preprocess and train scripts
 from sdcnet_preprocess_improve import preprocess_params
@@ -31,9 +32,6 @@ filepath = Path(__file__).resolve().parent # [Req]
 # ---------------------
 # [Req] Parameter lists
 # ---------------------
-# Two parameter lists are required:
-# 1. app_infer_params
-# 2. model_infer_params
 app_infer_params = []
 model_infer_params = []
 infer_params = app_infer_params + model_infer_params
@@ -48,18 +46,10 @@ def run(params):
     frm.create_outdir(outdir=params["infer_outdir"])
 
     # ------------------------------------------------------
-    # [Req] Create data names for test set
-    # ------------------------------------------------------
-    test_data_fname = frm.build_ml_data_name(params, stage="test")
-    test_data_path = params["ml_data_outdir"] + "/" + test_data_fname
-    resultspath = params["model_outdir"]
-    # ------------------------------------------------------
-    # CUDA/CPU device
-    # ------------------------------------------------------
-
-    # ------------------------------------------------------
     # Load data
     # ------------------------------------------------------
+    resultspath = params["model_outdir"]
+    
     def open_file(file_name):
         path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
         with open(path_name, 'rb') as f:
@@ -75,12 +65,17 @@ def run(params):
     with open(counts_needed_path, 'rb') as f:
             cellscount, num_drug_feat, num_drug_nonzeros = pickle.load(f)
 
+    # ------------------------------------------------------
+    # Configure tf
+    # ------------------------------------------------------
     config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
     config.allow_soft_placement = True
     config.log_device_placement = True
     config.gpu_options.per_process_gpu_memory_fraction = 0.3
+
+    # Create placeholders
     placeholders = {
         'features': tf.sparse_placeholder(tf.float32),
         'dropout': tf.placeholder_with_default(0., shape=()),
@@ -88,35 +83,31 @@ def run(params):
     placeholders.update({'net1_adj_norm_'+str(cellidx) : tf.sparse_placeholder(tf.float32) for cellidx in range(cellscount)})
 
     # Create model
-    from models.model_mult import sdcnet
     model = sdcnet(placeholders, num_drug_feat, params["embedding_dim"], num_drug_nonzeros, name='sdcnet', use_cellweights=True, use_layerweights=True,  fncellscount =cellscount )
    
-    # Initialize session
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
-    #saver = tf.train.Saver(max_to_keep=1)
-    best_model_file = resultspath + '/best_model.ckpt'
-    best_model_meta = resultspath + '/best_model.ckpt.meta'
-    saver = tf.train.import_meta_graph(best_model_meta)
-
     # ------------------------------------------------------
     # Load best model
     # ------------------------------------------------------
-###### this should all go to infer
+    # Initialize session
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
+    best_model_file = resultspath + '/best_model.ckpt'
+    best_model_meta = resultspath + '/best_model.ckpt.meta'
+    saver = tf.train.import_meta_graph(best_model_meta)
     saver.restore(sess, best_model_file )
     
     feed_dict = dict()
     feed_dict.update({placeholders['features']: drug_feat})
     feed_dict.update({placeholders['dropout']: params["dropout"]})
     feed_dict.update({placeholders['net1_adj_norm_'+str(cellidx)] : d_net1_norm[cellidx] for cellidx in range(cellscount)})
-    
-    ##test predict
     feed_dict.update({placeholders['dropout']: 0})
-    res = sess.run( model.reconstructions , feed_dict=feed_dict)
+
     # ------------------------------------------------------
     # Compute predictions
     # ------------------------------------------------------
- # improve metrics
+    # Get results
+    res = sess.run( model.reconstructions , feed_dict=feed_dict)
+
     y_pred = []
     y_labels = []
     for cellidx in range(cellscount):
@@ -126,26 +117,23 @@ def run(params):
         y_pred += this_pred
         y_labels += this_labels
 
-    scores = frm.compute_performace_scores(params, y_true=y_labels, y_pred=y_pred, stage="test", outdir=params["infer_outdir"], metrics=metrics_list)
-
     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
     # ------------------------------------------------------
-    # frm.store_predictions_df(
-    #     params,
-    #     y_true=test_true, y_pred=test_pred, stage="test",
-    #     outdir=params["infer_outdir"]
-    # )
+    frm.store_predictions_df(
+        params,
+        y_true=y_labels, y_pred=y_pred, stage="test",
+        outdir=params["infer_outdir"]
+    )
 
     # ------------------------------------------------------
     # [Req] Compute performance scores
     # ------------------------------------------------------
-    # test_scores = frm.compute_performace_scores(
-    #     params,
-    #     y_true=test_true, y_pred=test_pred, stage="test",
-    #     outdir=params["infer_outdir"], metrics=metrics_list
-    # )
-    test_scores = 0
+    test_scores = frm.compute_performace_scores(
+        params,
+        y_true=y_labels, y_pred=y_pred, stage="test",
+        outdir=params["infer_outdir"], metrics=metrics_list
+    )
 
     return test_scores
 

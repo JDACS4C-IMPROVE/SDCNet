@@ -78,6 +78,7 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Load X data (feature representations)
     # ------------------------------------------------------
+    features = pd.read_csv('./data/oneil_drug_informax_feat.txt',sep='\t', header=None)
     data = pd.read_csv('./data/oneil_dataset_loewe.txt', sep='\t', header=0)
     data.columns = ['drugname1','drugname2','cell_line','synergy']
 
@@ -86,8 +87,7 @@ def run(params: Dict):
     cellslist = sorted(list(set(data['cell_line']))) 
     cellscount = len(cellslist)
     print("cellscount: ", cellscount)
-
-    features = pd.read_csv('./data/oneil_drug_informax_feat.txt',sep='\t', header=None)
+    print("drugscount: ", drugscount)
 
     drug_feat = sp.csr_matrix( np.array(features) )
     drug_feat = sdcnet_utils.sparse_to_tuple(drug_feat.tocoo())
@@ -95,7 +95,7 @@ def run(params: Dict):
     num_drug_nonzeros = drug_feat[1].shape[0]
 
 
-    resultspath = params["model_outdir"]
+    #resultspath = params["model_outdir"]
 
     all_indexs = []
     all_edges = []
@@ -111,29 +111,27 @@ def run(params: Dict):
         diags_edges.append([idx, idx])
         diags_indexs.append( all_indexs.index([idx, idx]) )
 
-    num_folds = 1
-    all_stats = np.zeros((num_folds, 6))
-    merged_stats = np.zeros((num_folds, 6))
+    #all_stats = np.zeros((num_folds, 6))
+    #merged_stats = np.zeros((num_folds, 6))
 
     # -----------------------------
     # Begin CV
     # -----------------------------
     #for foldidx in range( num_folds):
     foldidx = 0
-    print('processing fold ', foldidx)
 
     d_net1_norm = {}
-    d_net2_norm = {}
-    d_net1_orig = {}
-    d_net2_orig = {}
+    #d_net2_norm = {}
+    #d_net1_orig = {}
+    #d_net2_orig = {}
     d_pos_weights = {}
-    d_train_edges = {}
+    #d_train_edges = {}
     d_train_indexs = {}
     d_train_labels = {}
     d_test_edges = {}
     d_test_labels = {}
-    d_new_edges = {}
-    d_net3_edges = {}
+    #d_new_edges = {}
+    #d_net3_edges = {}
     d_valid_edges = {}
     d_valid_labels = {}
     for cellidx in range(cellscount):
@@ -197,8 +195,6 @@ def run(params: Dict):
         net1_adj_orig = net1_adj_train.copy() #this the label
         net1_adj_orig = sdcnet_utils.sparse_to_tuple(sp.csr_matrix(net1_adj_orig))
 
-        ##net2
-        ##net2
         net2_edge_idx = list(range(net2_edges.shape[0]))
         #1.the number of negative samples are split into equal subsets
         # num_test2 = int(np.floor(net2_edges.shape[0] * FLAGS.val_test_size))
@@ -232,10 +228,10 @@ def run(params: Dict):
 
         d_pos_weights[cellidx] = each_pos_weight
         d_net1_norm[cellidx] = net1_adj_norm
-        d_net1_orig[cellidx] = net1_adj_orig
+        #d_net1_orig[cellidx] = net1_adj_orig
         d_test_edges[cellidx] = test_edges
         d_test_labels[cellidx] = y_test
-        d_train_edges[cellidx] = train_edges
+        #d_train_edges[cellidx] = train_edges
         d_train_indexs[cellidx] = train_indexs
         d_train_labels[cellidx] = y_train
         d_valid_edges[cellidx] = valid_edges
@@ -268,10 +264,10 @@ def run(params: Dict):
 
     save_file(d_pos_weights, "d_pos_weights")
     save_file(d_net1_norm, "d_net1_norm")
-    save_file(d_net1_orig, "d_net1_orig")
+    #save_file(d_net1_orig, "d_net1_orig")
     save_file(d_test_edges, "d_test_edges")
     save_file(d_test_labels, "d_test_labels")
-    save_file(d_train_edges, "d_train_edges")
+    #save_file(d_train_edges, "d_train_edges")
     save_file(d_train_indexs, "d_train_indexs")
     save_file(d_train_labels, "d_train_labels")
     save_file(d_valid_edges, "d_valid_edges")

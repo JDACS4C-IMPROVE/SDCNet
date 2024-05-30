@@ -53,25 +53,12 @@ def run(params):
     # ------------------------------------------------------
     # [Req] Create output dir and build model path
     # ------------------------------------------------------
-    # Create output dir for trained model, val set predictions, val set
-    # performance scores
     frm.create_outdir(outdir=params["model_outdir"])
 
     # Build model path
     modelpath = frm.build_model_path(params, model_dir=params["model_outdir"])
     resultspath = params["model_outdir"]
-    # ------------------------------------------------------
-    # [Req] Create data names for train and val sets
-    # ------------------------------------------------------
-    train_data_fname = frm.build_ml_data_name(params, stage="train")  # [Req]
-    val_data_fname = frm.build_ml_data_name(params, stage="val")  # [Req]
 
-    train_data_path = params["ml_data_outdir"] + "/" + train_data_fname
-    val_data_path = params["ml_data_outdir"] + "/" + val_data_fname
-    
-    # ------------------------------------------------------
-    # CUDA/CPU device
-    # ------------------------------------------------------
     # ------------------------------------------------------
     # Prepare model
     # ------------------------------------------------------
@@ -92,10 +79,8 @@ def run(params):
     
     d_pos_weights = open_file("d_pos_weights")
     d_net1_norm = open_file("d_net1_norm")
-    d_net1_orig = open_file("d_net1_orig")
     d_test_edges = open_file("d_test_edges")
     d_test_labels = open_file("d_test_labels")
-    d_train_edges = open_file("d_train_edges")
     d_train_indexs = open_file("d_train_indexs")
     d_train_labels = open_file("d_train_labels")
     d_valid_edges = open_file("d_valid_edges")
