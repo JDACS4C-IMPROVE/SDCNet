@@ -94,6 +94,11 @@ def run(params):
     # ------------------------------------------------------
 ###### this should all go to infer
     saver.restore(sess, best_model_file )
+    placeholders = {
+        'features': tf.sparse_placeholder(tf.float32),
+        'dropout': tf.placeholder_with_default(0., shape=()),
+    }
+    placeholders.update({'net1_adj_norm_'+str(cellidx) : tf.sparse_placeholder(tf.float32) for cellidx in range(cellscount)})
 
     feed_dict = dict()
     feed_dict.update({placeholders['features']: drug_feat})
