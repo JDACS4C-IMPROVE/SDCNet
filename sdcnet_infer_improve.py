@@ -81,6 +81,12 @@ def run(params):
     config.allow_soft_placement = True
     config.log_device_placement = True
     config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    placeholders = {
+        'features': tf.sparse_placeholder(tf.float32),
+        'dropout': tf.placeholder_with_default(0., shape=()),
+    }
+    placeholders.update({'net1_adj_norm_'+str(cellidx) : tf.sparse_placeholder(tf.float32) for cellidx in range(cellscount)})
+
     # Create model
     from models.model_mult import sdcnet
     model = sdcnet(placeholders, num_drug_feat, params["embedding_dim"], num_drug_nonzeros, name='sdcnet', use_cellweights=True, use_layerweights=True,  fncellscount =cellscount )
@@ -98,12 +104,7 @@ def run(params):
     # ------------------------------------------------------
 ###### this should all go to infer
     saver.restore(sess, best_model_file )
-    placeholders = {
-        'features': tf.sparse_placeholder(tf.float32),
-        'dropout': tf.placeholder_with_default(0., shape=()),
-    }
-    placeholders.update({'net1_adj_norm_'+str(cellidx) : tf.sparse_placeholder(tf.float32) for cellidx in range(cellscount)})
-
+    
     feed_dict = dict()
     feed_dict.update({placeholders['features']: drug_feat})
     feed_dict.update({placeholders['dropout']: params["dropout"]})
