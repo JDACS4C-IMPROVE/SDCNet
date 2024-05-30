@@ -85,8 +85,8 @@ def run(params):
     sess = tf.Session()
     #sess.run(tf.global_variables_initializer())
     #saver = tf.train.Saver(max_to_keep=1)
-    best_model_file = resultspath + '/best_model' + '.ckpt'
-    best_model_meta = resultspath + '/best_model' + '.meta'
+    best_model_file = resultspath + '/best_model.ckpt'
+    best_model_meta = resultspath + '/best_model.ckpt.meta'
     saver = tf.train.import_meta_graph(best_model_meta)
 
     # ------------------------------------------------------
