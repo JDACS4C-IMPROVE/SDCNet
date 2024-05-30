@@ -94,9 +94,6 @@ def run(params: Dict):
     num_drug_feat = drug_feat[2][1]
     num_drug_nonzeros = drug_feat[1].shape[0]
 
-
-    #resultspath = params["model_outdir"]
-
     all_indexs = []
     all_edges = []
     for idx1 in range(drugscount):
@@ -111,27 +108,19 @@ def run(params: Dict):
         diags_edges.append([idx, idx])
         diags_indexs.append( all_indexs.index([idx, idx]) )
 
-    #all_stats = np.zeros((num_folds, 6))
-    #merged_stats = np.zeros((num_folds, 6))
 
-    # -----------------------------
-    # Begin CV
-    # -----------------------------
-    #for foldidx in range( num_folds):
+    
+
+    # ------------------------------------------------------
+    # Construct ML data for every stage (train, val, test)
+    # ------------------------------------------------------
     foldidx = 0
-
     d_net1_norm = {}
-    #d_net2_norm = {}
-    #d_net1_orig = {}
-    #d_net2_orig = {}
     d_pos_weights = {}
-    #d_train_edges = {}
     d_train_indexs = {}
     d_train_labels = {}
     d_test_edges = {}
     d_test_labels = {}
-    #d_new_edges = {}
-    #d_net3_edges = {}
     d_valid_edges = {}
     d_valid_labels = {}
     for cellidx in range(cellscount):
@@ -228,31 +217,12 @@ def run(params: Dict):
 
         d_pos_weights[cellidx] = each_pos_weight
         d_net1_norm[cellidx] = net1_adj_norm
-        #d_net1_orig[cellidx] = net1_adj_orig
         d_test_edges[cellidx] = test_edges
         d_test_labels[cellidx] = y_test
-        #d_train_edges[cellidx] = train_edges
         d_train_indexs[cellidx] = train_indexs
         d_train_labels[cellidx] = y_train
         d_valid_edges[cellidx] = valid_edges
         d_valid_labels[cellidx] = y_valid
-
-    # save and restore files here 
-    frm.create_outdir(outdir=params["ml_data_outdir"])
-
-
-    # ------------------------------------------------------
-    # Load Y data 
-    # ------------------------------------------------------
-
-    # ------------------------------------------------------
-    # Construct ML data for every stage (train, val, test)
-    # ------------------------------------------------------
-
-    # ------------------------------------------------------
-    # [Req] Create data names for ML data
-    # ------------------------------------------------------
-
 
     # ------------------------------------------------------
     # Save ML data
@@ -264,10 +234,8 @@ def run(params: Dict):
 
     save_file(d_pos_weights, "d_pos_weights")
     save_file(d_net1_norm, "d_net1_norm")
-    #save_file(d_net1_orig, "d_net1_orig")
     save_file(d_test_edges, "d_test_edges")
     save_file(d_test_labels, "d_test_labels")
-    #save_file(d_train_edges, "d_train_edges")
     save_file(d_train_indexs, "d_train_indexs")
     save_file(d_train_labels, "d_train_labels")
     save_file(d_valid_edges, "d_valid_edges")

@@ -33,9 +33,6 @@ filepath = Path(__file__).resolve().parent # [Req]
 # ---------------------
 # [Req] Parameter lists
 # ---------------------
-# Two parameter lists are required:
-# 1. app_train_params
-# 2. model_train_params
 app_train_params = []
 model_train_params = []
 train_params = app_train_params + model_train_params
@@ -140,10 +137,9 @@ def run(params):
             best_acc = merged_acc
             saver.save(sess, best_model_file)
 
-
-    
-
-    # improve metrics
+    # ------------------------------------------------------
+    # Load best model and compute predictions
+    # ------------------------------------------------------
     y_pred = []
     y_labels = []
     for cellidx in range(cellscount):
@@ -153,42 +149,25 @@ def run(params):
         y_pred += this_pred
         y_labels += this_labels
 
-    scores = frm.compute_performace_scores(params, y_true=y_labels, y_pred=y_pred, stage="val", outdir=params["model_outdir"], metrics=metrics_list)
-
-
-
-
-    # -----------------------------
-    # Save model
-    # -----------------------------
-
-    # ------------------------------------------------------
-    # Load best model and compute predictions
-    # ------------------------------------------------------
-
-
     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
     # ------------------------------------------------------
-    # frm.store_predictions_df(
-    #     params,
-    #     y_true=val_true, y_pred=val_pred, stage="val",
-    #     outdir=params["model_outdir"]
-    # )
+    frm.store_predictions_df(
+        params,
+        y_true=y_labels, y_pred=y_pred, stage="val",
+        outdir=params["model_outdir"]
+    )
 
     # ------------------------------------------------------
     # [Req] Compute performance scores
     # ------------------------------------------------------
-    # val_scores = frm.compute_performace_scores(
-    #     params,
-    #     y_true=val_true, y_pred=val_pred, stage="val",
-    #     outdir=params["model_outdir"], metrics=metrics_list
-    # )
-    val_scores = 0
+    val_scores = frm.compute_performace_scores(
+        params,
+        y_true=y_labels, y_pred=y_pred, stage="val",
+        outdir=params["model_outdir"], metrics=metrics_list
+    )
 
     return val_scores
-
-
 
 
 # [Req]
