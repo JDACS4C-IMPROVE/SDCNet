@@ -4,7 +4,6 @@ model_name = "sdcnet"
 [Preprocess]
 
 [Train]
-#epochs = 10000
-epochs = 200
+epochs = 10000
 
 [Infer]

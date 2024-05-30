@@ -15,7 +15,7 @@ pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ### Clone this repository
 ```
 git clone https://github.com/JDACS4C-IMPROVE/SDCNet
-cd matchmaker
+cd SDCNet
 git checkout IMPROVE-original
 cd ..
 ```
