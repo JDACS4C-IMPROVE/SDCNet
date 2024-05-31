@@ -89,8 +89,8 @@ def run(params):
 
     # Create model
     model = sdcnet(placeholders, num_drug_feat, params["embedding_dim"], num_drug_nonzeros, name='sdcnet', use_cellweights=True, use_layerweights=True,  fncellscount =cellscount )
-    #with tf.name_scope('optimizer'):
-    #    opt = Optimizer(preds= model.reconstructions, d_labels= d_train_labels, model=model, lr= params["learning_rate"], d_pos_weights = d_pos_weights, d_indexs = d_train_indexs )
+    with tf.name_scope('optimizer'):
+        opt = Optimizer(preds= model.reconstructions, d_labels= d_train_labels, model=model, lr= params["learning_rate"], d_pos_weights = d_pos_weights, d_indexs = d_train_indexs )
 
     # ------------------------------------------------------
     # Load best model
