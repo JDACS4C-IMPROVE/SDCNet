@@ -143,9 +143,9 @@ def run(params):
     y_pred = []
     y_labels = []
     for cellidx in range(cellscount):
-        preds_all_improve = res[cellidx][ tuple( d_test_edges[cellidx].T )].tolist()
+        preds_all_improve = res[cellidx][ tuple( d_valid_edges[cellidx].T )].tolist()
         this_pred = [ 1 if x>=0.5 else 0 for x in preds_all_improve ]
-        this_labels = d_test_labels[cellidx]
+        this_labels = d_valid_labels[cellidx]
         y_pred += this_pred
         y_labels += this_labels
 

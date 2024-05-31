@@ -49,7 +49,7 @@ def run(params):
     # Load data
     # ------------------------------------------------------
     resultspath = params["model_outdir"]
-    
+
     def open_file(file_name):
         path_name = params["ml_data_outdir"] + "/" + file_name + ".pkl"
         with open(path_name, 'rb') as f:
@@ -61,6 +61,10 @@ def run(params):
     d_test_labels = open_file("d_test_labels")
     drug_feat = open_file("drug_feat")
 
+    d_pos_weights = open_file("d_pos_weights")
+    d_train_indexs = open_file("d_train_indexs")
+    d_train_labels = open_file("d_train_labels")
+
     counts_needed_path = params["ml_data_outdir"] + "/counts_needed.pkl"
     with open(counts_needed_path, 'rb') as f:
             cellscount, num_drug_feat, num_drug_nonzeros = pickle.load(f)
@@ -68,6 +72,7 @@ def run(params):
     # ------------------------------------------------------
     # Configure tf
     # ------------------------------------------------------
+    tf.compat.v1.disable_v2_behavior() 
     config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
@@ -84,16 +89,19 @@ def run(params):
 
     # Create model
     model = sdcnet(placeholders, num_drug_feat, params["embedding_dim"], num_drug_nonzeros, name='sdcnet', use_cellweights=True, use_layerweights=True,  fncellscount =cellscount )
-   
+    #with tf.name_scope('optimizer'):
+    #    opt = Optimizer(preds= model.reconstructions, d_labels= d_train_labels, model=model, lr= params["learning_rate"], d_pos_weights = d_pos_weights, d_indexs = d_train_indexs )
+
     # ------------------------------------------------------
     # Load best model
     # ------------------------------------------------------
     # Initialize session
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
+    saver = tf.train.Saver(max_to_keep=1)
     best_model_file = resultspath + '/best_model.ckpt'
     best_model_meta = resultspath + '/best_model.ckpt.meta'
-    saver = tf.train.import_meta_graph(best_model_meta)
+    #saver = tf.train.import_meta_graph(best_model_meta)
     saver.restore(sess, best_model_file )
     
     feed_dict = dict()
