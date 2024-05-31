@@ -22,6 +22,7 @@ tf.compat.v1.disable_v2_behavior()
 import sdcnet_utils
 import pickle
 from models.model_mult import sdcnet
+from models.optimizer_mult import Optimizer
 
 # [Req] Imports from preprocess and train scripts
 from sdcnet_preprocess_improve import preprocess_params
